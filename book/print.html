@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter_1.html"><strong aria-hidden="true">1.</strong> Chapter 1</a></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="chapter_1.html"><strong aria-hidden="true">1.</strong> Chapter 1: 在 Rust 中本地设置、构建和部署 Solana 程序</a></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -174,7 +174,118 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="chapter-1"><a class="header" href="#chapter-1">Chapter 1</a></h1>
+                        <h1 id="chapter-1-在-rust-中本地设置构建和部署-solana-程序"><a class="header" href="#chapter-1-在-rust-中本地设置构建和部署-solana-程序">Chapter 1: 在 Rust 中本地设置、构建和部署 Solana 程序</a></h1>
+<p>Rust 是编写 Solana 程序最常用的编程语言。本快速入门指南将演示如何快速设置、构建第一个基于 Rust 的 Solana 程序并将其部署到区块链。</p>
+<blockquote>
+<p><strong>您安装了 SOLANA CLI 吗？</strong></p>
+<p>本指南使用 Solana CLI 并假设您已<a href="https://solana.com/zh/developers/guides/getstarted/setup-local-development">设置本地开发环境</a>。请在此处查看我们的本地开发快速入门指南以快速进行设置。</p>
+</blockquote>
+<h2 id="你将学到什么"><a class="header" href="#你将学到什么">你将学到什么</a></h2>
+<ul>
+<li>如何在本地安装Rust语言</li>
+<li>如何初始化新的 Solana Rust 程序</li>
+<li>如何使用 Rust 编写基本的 Solana 程序</li>
+<li>如何构建和部署 Rust 程序</li>
+</ul>
+<h2 id="安装-rust-和-cargo"><a class="header" href="#安装-rust-和-cargo">安装 Rust 和 Cargo</a></h2>
+<p>为了能够编译基于 Rust 的 Solana 程序，请使用 <a href="https://rustup.rs/">Rustup</a> 安装 Rust 语言和 Cargo（Rust 包管理器）：</p>
+<pre><code class="language-bash">curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+</code></pre>
+<h2 id="运行你的本地主机验证器"><a class="header" href="#运行你的本地主机验证器">运行你的本地主机验证器</a></h2>
+<p>Solana CLI 附带内置的<a href="https://docs.solanalabs.com/cli/examples/test-validator">测试验证器</a>。此命令行工具将允许您在计算机上运行完整的区块链集群。</p>
+<pre><code class="language-bash">solana-test-validator
+</code></pre>
+<blockquote>
+<p><strong>PRO TIP:提示</strong>：</p>
+<p>在新的/单独的终端窗口中运行 Solana 测试验证器，该窗口将保持打开状态。此命令行程序必须保持运行，以便本地主机验证器保持在线并准备好执行操作。</p>
+</blockquote>
+<p>配置您的 Solana CLI 以将本地主机验证器用于所有未来的终端命令和 Solana 程序部署：</p>
+<pre><code class="language-bash">solana config set --url localhost
+</code></pre>
+<h2 id="使用-cargo-创建一个新的-rust-库"><a class="header" href="#使用-cargo-创建一个新的-rust-库">使用 Cargo 创建一个新的 Rust 库</a></h2>
+<p>用 Rust 编写的 Solana 程序是编译为 <a href="https://solana.com/docs/programs/faq#berkeley-packet-filter-bpf">BPF</a> 字节码并以 <code>.so</code> 格式保存的库。</p>
+<p>通过 Cargo 命令行初始化一个名为 <code>hello_world</code> 的新 Rust 库:</p>
+<pre><code class="language-bash">cargo init hello_world --lib
+cd hello_world
+</code></pre>
+<p>将 <code>solana-program</code> 箱添加到新的 Rust 库中：</p>
+<pre><code class="language-bash">cargo add solana-program
+</code></pre>
+<blockquote>
+<p><strong>PRO TIP:提示</strong>：</p>
+<p>强烈建议使您的 <code>solana-program</code> 和其他 Solana Rust 依赖项与您安装的 Solana CLI 版本保持一致。例如，如果您正在运行 Solana CLI <code>1.17.17</code> ，则可以运行</p>
+<pre><code class="language-bash">cargo add solana-program@1.17.17
+</code></pre>
+<p>这将确保您的 crate 仅使用 1.17.17 而没有其他内容。如果您遇到 Solana 依赖项的兼容性问题，请查看 <a href="https://solana.stackexchange.com/questions/9798/how-do-i-fix-package-solana-program-v1-18-0-cannot-be-built-because-it-requires/9799#9799">Solana Stack Exchange</a></p>
+</blockquote>
+<p>打开您的 <code>Cargo.toml</code> 文件并添加这些必需的 Rust 库配置设置，并根据需要更新您的项目名称：</p>
+<pre><code class="language-toml">[lib]
+name = "hello_world"
+crate-type = ["cdylib", "lib"]
+</code></pre>
+<h2 id="创建您的第一个-solana-程序"><a class="header" href="#创建您的第一个-solana-程序">创建您的第一个 Solana 程序</a></h2>
+<p>基于 Rust 的 Solana 程序的代码将位于您的 <code>src/lib.rs</code> 文件中。在 <code>src/lib.rs</code> 中，您将能够导入 Rust 包并定义您的逻辑。在您喜欢的编辑器中打开您的 <code>src/lib.rs</code> 文件。</p>
+<p>在 <code>lib.rs</code> 顶部，导入 <code>solana-program</code> 包并将我们需要的项目放入本地命名空间中：</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>use solana_program::{
+    account_info::AccountInfo,
+    entrypoint,
+    entrypoint::ProgramResult,
+    pubkey::Pubkey,
+    msg,
+};
+<span class="boring">}</span></code></pre></pre>
+<p>每个 Solana 程序都必须定义一个 <a href="https://solana.com/docs/programs/lang-rust#program-entrypoint">entrypoint</a> 来告诉 Solana 运行时从哪里开始执行链上代码。您的程序的入口点应该提供一个名为 <code>process_instruction</code> 的公共函数：</p>
+<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
+</span><span class="boring">fn main() {
+</span>// declare and export the program's entrypoint
+entrypoint!(process_instruction);
+
+// program entrypoint's implementation
+pub fn process_instruction(
+    program_id: &amp;Pubkey,
+    accounts: &amp;[AccountInfo],
+    instruction_data: &amp;[u8]
+) -&gt; ProgramResult {
+    // log a message to the blockchain
+    msg!("Hello, world!");
+
+    // gracefully exit the program
+    Ok(())
+}
+<span class="boring">}</span></code></pre></pre>
+<p>每个链上程序都应返回 <code>Ok</code> <a href="https://doc.rust-lang.org/std/result/">Result</a>枚举，其值为 <code>()</code> 。这告诉 Solana 运行时您的程序已成功执行，没有错误。</p>
+<p>上面的程序将简单地<a href="https://solana.com/docs/programs/debugging#logging">记录一条消息</a>“Hello, world!”到区块链集群，然后使用 <code>Ok(())</code> 优雅退出。</p>
+<h2 id="构建你的-rust-程序"><a class="header" href="#构建你的-rust-程序">构建你的 Rust 程序</a></h2>
+<p>在终端窗口内，您可以通过在项目的根目录（即包含 <code>Cargo.toml</code> 文件的目录）中运行来构建 Solana Rust 程序</p>
+<pre><code class="language-bash">cargo build-bpf
+</code></pre>
+<blockquote>
+<p><strong>PRO TIP:提示</strong>：</p>
+<p>每次构建 Solana 程序后，上述命令将输出已编译程序的 <code>.so</code> 文件的构建路径以及将用于程序地址的默认密钥文件。 <code>cargo build-bpf</code> 从当前安装的 solana CLI 工具安装工具链。如果遇到任何版本不兼容的情况，您可能需要升级这些工具。</p>
+</blockquote>
+<h2 id="部署您的-solana-程序"><a class="header" href="#部署您的-solana-程序">部署您的 Solana 程序</a></h2>
+<p>使用 Solana CLI，您可以将程序部署到当前选择的集群：</p>
+<pre><code class="language-bash">solana program deploy ./target/deploy/hello_world.so
+</code></pre>
+<p>一旦您的 Solana 程序被部署（并且交易<a href="https://docs.solanalabs.com/consensus/commitments">完成</a>），上述命令将输出您程序的公共地址（也称为“程序 id”）。</p>
+<pre><code class="language-bash"># example output
+Program Id: EFH95fWg49vkFNbAdw9vy75tM7sWZ2hQbTTUmuACGip3
+</code></pre>
+<h3 id="恭喜"><a class="header" href="#恭喜">恭喜！</a></h3>
+<p>您已使用 Rust 语言成功设置、构建和部署了 Solana 程序。</p>
+<blockquote>
+<p><strong>检查您的钱包余额！</strong>：</p>
+<p>部署后再次检查 Solana 钱包的余额。看看部署您的简单程序需要多少 SOL 成本？</p>
+</blockquote>
+<h2 id="下一步"><a class="header" href="#下一步">下一步</a></h2>
+<p>请参阅下面的链接，了解有关编写基于 Rust 的 Solana 程序的更多信息：</p>
+<ul>
+<li><a href="https://solana.com/docs/programs">编写 Solana 程序概述</a></li>
+<li><a href="https://solana.com/docs/programs/lang-rust">了解有关使用 Rust 开发 Solana 程序的更多信息</a></li>
+<li><a href="https://solana.com/docs/programs/debugging">链上程序调试</a></li>
+</ul>
 
                     </main>
 
