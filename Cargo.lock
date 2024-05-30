@@ -3222,6 +3222,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74233d3b3b2f6d4b006dc19dee745e73e2a6bfb6f93607cd3b02bd5b00797d7c"
 
 [[package]]
+name = "sin-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap 4.5.4",
+ "env_logger 0.11.3",
+ "log",
+ "solana-cli-config",
+ "solana-client",
+ "solana-sdk",
+ "thiserror",
+]
+
+[[package]]
 name = "siphasher"
 version = "0.3.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3260,20 +3274,6 @@ checksum = "ce305eb0b4296696835b71df73eb912e0f1ffd2556a501fcede6e0c50349191c"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "sol-cli"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "clap 4.5.4",
- "env_logger 0.11.3",
- "log",
- "solana-cli-config",
- "solana-client",
- "solana-sdk",
- "thiserror",
 ]
 
 [[package]]
