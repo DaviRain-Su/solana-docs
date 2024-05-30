@@ -5,7 +5,7 @@ pub mod balance;
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 pub enum Command {
-    #[command(name = "balance")]
+    #[command(name = "balance", about = "获取账户余额")]
     Balance(balance::Balance),
 }
 

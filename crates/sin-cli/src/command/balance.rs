@@ -11,6 +11,7 @@ use solana_sdk::signer::keypair::read_keypair_file;
 
 #[derive(Parser, Debug)]
 pub struct Balance {
+    /// 指定读取的账户地址
     #[arg(short, long)]
     pub address: Option<String>,
 }
@@ -43,7 +44,7 @@ impl Balance {
 
         let balance = rpc_client.get_balance(&address)?;
         let balance = Sol(balance);
-        println!("Address({}) have {:.9} SOL", address, balance);
+        println!("地址 {} 有 {:.9} SOL", address, balance);
         Ok(())
     }
 }
