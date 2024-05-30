@@ -10,13 +10,27 @@ use solana_sdk::signature::Signer;
 use solana_sdk::signer::keypair::read_keypair_file;
 
 #[derive(Parser, Debug)]
-pub struct Balance {
+pub enum SolNative {
+    #[command(name = "balance", about = "获取账户余额")]
+    SolNative(SolNativeBalance),
+}
+
+impl SolNative {
+    pub fn run(&self) -> anyhow::Result<()> {
+        match self {
+            SolNative::SolNative(balance) => balance.run(),
+        }
+    }
+}
+
+#[derive(Parser, Debug)]
+pub struct SolNativeBalance {
     /// 指定读取的账户地址
     #[arg(short, long)]
     pub address: Option<String>,
 }
 
-impl Balance {
+impl SolNativeBalance {
     pub fn run(&self) -> anyhow::Result<()> {
         let config_file = CONFIG_FILE
             .as_ref()
